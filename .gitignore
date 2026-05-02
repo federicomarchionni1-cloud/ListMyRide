@@ -31,10 +31,21 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
+
+# Cloud Functions
+functions/node_modules/
+functions/lib/
 
 # typescript
 *.tsbuildinfo
+
+# Claude Code
+.claude/
+.agents/
+.playwright-mcp/
+skills-lock.json
 
 # generated native folders
 /ios
