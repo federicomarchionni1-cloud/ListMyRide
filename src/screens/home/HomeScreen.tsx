@@ -18,7 +18,7 @@ import { Listing } from '@/types/listing';
 import { Button } from '@/components/common/Button';
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS } from '@/constants/theme';
 import { formatGBP } from '@/utils/formatCurrency';
-import { ListingStackParamList } from '@/types/navigation';
+import { MainStackParamList } from '@/types/navigation';
 import { format } from 'date-fns';
 
 export function HomeScreen() {
@@ -26,7 +26,7 @@ export function HomeScreen() {
   const [listings, setListings] = useState<Listing[]>([]);
   const resetDraft = useListingDraftStore((s) => s.reset);
 
-  const navigation = useNavigation<NativeStackNavigationProp<ListingStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
 
   useEffect(() => {
     if (!user) return;
