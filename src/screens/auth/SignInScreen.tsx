@@ -33,7 +33,6 @@ interface Props {
 
 export function SignInScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
-  const setSkipAuth = useAuthStore((s) => s.setSkipAuth);
   const {
     control,
     handleSubmit,
@@ -118,9 +117,6 @@ export function SignInScreen({ navigation }: Props) {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => setSkipAuth(true)} style={styles.skipRow}>
-            <Text style={styles.skipText}>Skip for now (testing only)</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
