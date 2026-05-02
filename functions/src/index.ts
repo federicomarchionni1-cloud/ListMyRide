@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import { onCall, HttpsError, CallableRequest } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
 import { lookupPlate } from './dvla';
 import { analyseCondition, generateListing } from './openai';
@@ -15,13 +15,28 @@ admin.initializeApp();
 const OPENAI_API_KEY = defineSecret('OPENAI_API_KEY');
 const DVLA_API_KEY = defineSecret('DVLA_API_KEY');
 
+// Workaround for Firebase v12 + React Native initializeAuth: httpsCallable
+// sometimes drops the ID token. The client passes it as `_authToken` in the
+// request body and we verify it here when request.auth is missing.
+async function resolveUid(request: CallableRequest): Promise<string> {
+  if (request.auth?.uid) return request.auth.uid;
+  const fallback = (request.data as { _authToken?: string })?._authToken;
+  if (fallback) {
+    try {
+      const decoded = await admin.auth().verifyIdToken(fallback);
+      return decoded.uid;
+    } catch {
+      throw new HttpsError('unauthenticated', 'Invalid authentication token.');
+    }
+  }
+  throw new HttpsError('unauthenticated', 'Authentication required.');
+}
+
 // ── dvlaLookup ────────────────────────────────────────────────────────────────
 export const dvlaLookup = onCall(
   { secrets: [DVLA_API_KEY], region: 'europe-west2' },
   async (request) => {
-    if (!request.auth) {
-      throw new HttpsError('unauthenticated', 'Authentication required.');
-    }
+    await resolveUid(request);
 
     const { plate } = request.data as { plate: string };
     if (!plate || typeof plate !== 'string') {
@@ -49,9 +64,7 @@ export const analyseVehicle = onCall(
     memory: '512MiB',
   },
   async (request) => {
-    if (!request.auth) {
-      throw new HttpsError('unauthenticated', 'Authentication required.');
-    }
+    const uid = await resolveUid(request);
 
     const { plate, photoUrls, userId, mileage } = request.data as {
       plate: string;
@@ -59,6 +72,10 @@ export const analyseVehicle = onCall(
       userId: string;
       mileage?: number;
     };
+
+    if (userId !== uid) {
+      throw new HttpsError('permission-denied', 'User ID mismatch.');
+    }
 
     if (!plate || !photoUrls?.length || !userId) {
       throw new HttpsError('invalid-argument', 'plate, photoUrls, and userId are required.');
