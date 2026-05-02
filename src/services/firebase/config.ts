@@ -18,9 +18,10 @@ const firebaseConfig = {
   appId: extra.firebaseAppId ?? process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const isNewApp = getApps().length === 0;
+const app = isNewApp ? initializeApp(firebaseConfig) : getApp();
 
-export const auth = getApps().length === 1
+export const auth = isNewApp
   ? initializeAuth(app, { persistence: getReactNativePersistence(ReactNativeAsyncStorage) })
   : getAuth(app);
 export const db = getFirestore(app);
