@@ -13,12 +13,7 @@ export function useDVLA() {
       const vehicle = await callDVLALookup(plate);
       return vehicle;
     } catch (err: any) {
-      const raw: string = err?.message ?? '';
-      const friendly =
-        raw === 'unauthenticated' || raw.includes('sign in')
-          ? 'Please sign in again and retry.'
-          : raw || 'Failed to look up vehicle. Check the plate and try again.';
-      setError(friendly);
+      setError(err?.message || 'Failed to look up vehicle. Check the plate and try again.');
       return null;
     } finally {
       setLoading(false);
