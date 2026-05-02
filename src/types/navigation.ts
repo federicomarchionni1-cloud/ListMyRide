@@ -3,6 +3,15 @@ export type RootStackParamList = {
   Main: undefined;
 };
 
+export type MainStackParamList = {
+  Tabs: undefined;
+  PlateEntry: undefined;
+  PhotoCapture: undefined;
+  Analysis: { jobId: string };
+  Review: { listingId: string };
+  Export: { listingId: string };
+};
+
 export type AuthStackParamList = {
   SignIn: undefined;
   SignUp: undefined;
