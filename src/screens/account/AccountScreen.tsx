@@ -14,7 +14,7 @@ import { Button } from '@/components/common/Button';
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS } from '@/constants/theme';
 
 export function AccountScreen() {
-  const { user } = useAuthStore();
+  const { user, setSkipAuth } = useAuthStore();
 
   async function handleSignOut() {
     Alert.alert('Sign out', 'Are you sure you want to sign out?', [
@@ -24,6 +24,7 @@ export function AccountScreen() {
         style: 'destructive',
         onPress: async () => {
           await signOut();
+          setSkipAuth(false);
         },
       },
     ]);
